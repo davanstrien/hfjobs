@@ -99,6 +99,15 @@ This code ran with the following GPU: NVIDIA A10G
 
 That's it! You're now running code on Hugging Face's infrastructure. For more detailed information, see the sections below.
 
+## Common Use Cases
+
+- **Model Training**: Fine-tune or train models on GPUs (T4, A10G, A100) without managing infrastructure
+- **Synthetic Data Generation**: Generate large-scale datasets using LLMs on powerful hardware
+- **Data Processing**: Process massive datasets with high-CPU configurations for parallel workloads
+- **Batch Inference**: Run offline inference on thousands of samples using optimized GPU setups
+- **Experiments & Benchmarks**: Run ML experiments on consistent hardware for reproducible results
+- **Development & Debugging**: Test GPU code without local CUDA setup
+
 ## Available commands
 
 ```
@@ -200,7 +209,3 @@ Available `--flavor` options:
 - TPU: `v5e-1x1`, `v5e-2x2`, `v5e-2x4`
 
 (updated in 03/25 from Hugging Face [suggested_hardware docs](https://huggingface.co/docs/hub/en/spaces-config-reference))
-
-```
-
-```
