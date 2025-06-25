@@ -1,6 +1,6 @@
 # 🚀 hfjobs
 
-Run compute jobs on Hugging Face infrastructure with a Docker-like experience!
+Run compute jobs on Hugging Face infrastructure with a familiar Docker-like interface!
 
 `hfjobs` is a command-line tool that lets you run anything on Hugging Face's infrastructure (including GPUs and TPUs!) with simple commands. Think `docker run`, but for running code on A100s.
 
