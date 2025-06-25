@@ -31,10 +31,18 @@ This quickstart will walk you through using `hfjobs` to run compute jobs on Hugg
     - [Run on GPU](#run-on-gpu)
     - [Check GPU Memory](#check-gpu-memory)
     - [Available Hardware Options](#available-hardware-options)
-  - [Real-World Examples](#real-world-examples)
+  - [Environment Variables and Secrets](#environment-variables-and-secrets)
+    - [Environment Variables](#environment-variables)
+    - [Secrets](#secrets)
+  - [Managing Your Jobs](#managing-your-jobs)
+    - [List Your Jobs](#list-your-jobs)
+    - [View Job Logs](#view-job-logs)
+    - [Cancel a Job](#cancel-a-job)
+  - [It's not just for Python!](#its-not-just-for-python)
+    - [Compile and Run Rust](#compile-and-run-rust)
+    - [Run Node.js Applications](#run-nodejs-applications)
+    - [Use CLI Tools](#use-cli-tools)
   - [Next Steps](#next-steps)
-  - [Draft Content](#draft-content)
-    - [Inspect Job Details](#inspect-job-details)
 
 ## Installation & Setup
 
@@ -335,37 +343,154 @@ print(f'Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.0f} GB'
 | `cpu-basic`   | CPU only        | N/A        | Light processing, debugging          |
 | `cpu-upgrade` | High-memory CPU | N/A        | Data processing, CPU-intensive tasks |
 | `t4-small`    | NVIDIA T4       | 16 GB      | Inference, small models              |
+| `l4x1`        | NVIDIA L4       | 24 GB      | Modern inference, fine-tuning        |
 | `a10g-small`  | NVIDIA A10G     | 24 GB      | Medium training jobs                 |
 | `a10g-large`  | NVIDIA A10G     | 24 GB      | Larger batch sizes                   |
 | `a100-large`  | NVIDIA A100     | 80 GB      | Large model training                 |
 
-## Real-World Examples
+## Environment Variables and Secrets
 
-TODO: Add content
+Your jobs often need configuration values or credentials. hfjobs provides two ways to pass these securely.
+
+### Environment Variables
+
+Pass configuration values using the `-e` flag:
+
+```bash
+hfjobs run -e MODEL_NAME=bert-base-uncased -e BATCH_SIZE=32 \
+  python:3.12 python -c "
+import os
+print(f'Model: {os.environ[\"MODEL_NAME\"]}')
+print(f'Batch size: {os.environ[\"BATCH_SIZE\"]}')
+"
+```
+
+### Secrets
+
+For sensitive values like API keys, use the `--secret` flag:
+
+```bash
+# Pass a secret value to the job
+hfjobs run --secret HF_TOKEN=hf_*** \
+  python:3.12 python -c "
+import os
+token = os.environ.get('HF_TOKEN', 'not set')
+print(f'Token available: {\"yes\" if token != \"not set\" else \"no\"}')
+"
+```
+
+For local environment variables, you need to explicitly pass the value:
+
+```bash
+# Pass your local HF token to the job
+hfjobs run --secret HF_TOKEN="${HF_TOKEN}" \
+  python:3.12 python -c "
+import os
+# This will print 'yes' but the actual token value is masked in logs
+print(f'Token available: {\"yes\" if os.environ.get('HF_TOKEN') else \"no\"}')
+"
+```
+
+The key difference: environment variables are visible in logs, while secrets are masked for security.
+
+## Managing Your Jobs
+
+Once you've submitted jobs, you'll need to monitor and manage them. hfjobs provides commands similar to Docker for job management.
+
+### List Your Jobs
+
+See all your running jobs:
+
+```bash
+hfjobs ps
+```
+
+Output:
+
+```
+JOB ID      IMAGE         COMMAND                STATUS    CREATED
+abc123xyz   python:3.12   python train.py        RUNNING   2 minutes ago
+def456uvw   python:3.12   python inference.py    COMPLETED 1 hour ago
+```
+
+Filter by status:
+
+```bash
+# Show only running jobs
+hfjobs ps --filter status=running
+
+# Show all jobs including completed ones
+hfjobs ps --all
+```
+
+### View Job Logs
+
+Check the output of a specific job:
+
+```bash
+hfjobs logs abc123xyz
+```
+
+For long-running jobs, you might want to check logs periodically:
+
+```bash
+# Show logs with timestamps
+hfjobs logs -t abc123xyz
+```
+
+### Cancel a Job
+
+Stop a running job:
+
+```bash
+hfjobs cancel abc123xyz
+```
+
+This immediately terminates the job and frees up the resources.
+
+## It's not just for Python!
+
+While our examples focus on Python, hfjobs works with **any language or tool** available in Docker containers.
+
+### Compile and Run Rust
+
+```bash
+hfjobs run rust:latest /bin/bash -c "
+echo 'fn main() { println!(\"Hello from Rust! 🦀\"); }' > hello.rs &&
+rustc hello.rs &&
+./hello
+"
+```
+
+### Run Node.js Applications
+
+```bash
+hfjobs run node:20 node -e "
+console.log('Node.js version:', process.version);
+console.log('Computing fibonacci(40)...');
+const fib = (n) => n <= 1 ? n : fib(n-1) + fib(n-2);
+console.log('Result:', fib(40));
+"
+```
+
+### Use CLI Tools
+
+Process data with standard Unix tools:
+
+```bash
+# Analyze a dataset with jq
+hfjobs run ubuntu:22.04 /bin/bash -c "
+curl -s https://api.github.com/repos/huggingface/transformers |
+jq '{name: .name, stars: .stargazers_count, language: .language}'
+"
+```
+
+The key point: if it runs in a container, it runs on hfjobs!
 
 ## Next Steps
 
-- Check out our [example scripts](./examples/) for complete working examples
-- Read the [advanced guide](./advanced.md) for complex use cases
-- See the [API reference](./api-reference.md) for detailed command documentation
+Now that you've learned the basics of hfjobs, you can:
 
----
+- **Explore more examples**: Check out the [hello_world_uv.py](./examples/hello_world_uv.py) script
 
-## Draft Content
-
-_This section contains content that will be integrated into the docs later_
-
-### Inspect Job Details
-
-Get detailed information about a job:
-
-```bash
-hfjobs inspect <job_id>
-```
-
-This shows:
-
-- Current status (RUNNING, COMPLETED, FAILED)
-- Hardware configuration (flavor, architecture)
-- Docker image and command
-- Timestamps and owner information
+Happy computing! 🚀
