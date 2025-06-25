@@ -73,7 +73,66 @@ This should show your jobs (or an empty list if you haven't run any yet).
 
 ## Your First Job
 
-TODO: Add content
+Let's run a simple Python command on Hugging Face's infrastructure:
+
+```bash
+hfjobs run python:3.12 python -c "print('Hello from the cloud!')"
+```
+
+This command:
+- Uses the `python:3.12` Docker image
+- Runs a Python one-liner that prints a message
+- Executes on Hugging Face's infrastructure
+
+You'll see output like:
+
+```
+Job submitted successfully!
+Job ID: abc123xyz
+View at: https://huggingface.co/jobs/username/abc123xyz
+
+Waiting for job to start...
+===== Job started =====
+Hello from the cloud!
+===== Job completed =====
+```
+
+### Understanding the Output
+
+- **Job ID**: Unique identifier for your job
+- **Web URL**: Monitor your job in the browser
+- **Logs**: Streamed in real-time to your terminal
+
+### Watch Logs Stream in Real-Time
+
+Let's run a longer job to see how logs are streamed:
+
+```bash
+hfjobs run python:3.12 python -c "
+import time
+print('Starting job...')
+for i in range(5):
+    print(f'Processing step {i+1}/5')
+    time.sleep(2)
+print('Job complete!')
+"
+```
+
+You'll see each print statement appear as the job runs, giving you real-time feedback on your job's progress.
+
+### Run in Detached Mode
+
+For long-running jobs, you might not want to wait for output:
+
+```bash
+hfjobs run -d python:3.12 python -c "import time; time.sleep(300); print('Done!')"
+```
+
+This returns immediately with just the job ID. You can check on it later with:
+
+```bash
+hfjobs logs <job_id>
+```
 
 ## Working with Different Hardware
 
@@ -88,3 +147,23 @@ TODO: Add content
 - Check out our [example scripts](./examples/) for complete working examples
 - Read the [advanced guide](./advanced.md) for complex use cases
 - See the [API reference](./api-reference.md) for detailed command documentation
+
+---
+
+## Draft Content
+
+_This section contains content that will be integrated into the docs later_
+
+### Inspect Job Details
+
+Get detailed information about a job:
+
+```bash
+hfjobs inspect <job_id>
+```
+
+This shows:
+- Current status (RUNNING, COMPLETED, FAILED)
+- Hardware configuration (flavor, architecture)
+- Docker image and command
+- Timestamps and owner information
