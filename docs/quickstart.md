@@ -12,9 +12,17 @@ This quickstart will walk you through using `hfjobs` to run compute jobs on Hugg
     - [Verify Installation](#verify-installation)
   - [Authentication](#authentication)
   - [Your First Job](#your-first-job)
+    - [Understanding the Output](#understanding-the-output)
+    - [Watch Logs Stream in Real-Time](#watch-logs-stream-in-real-time)
+    - [Run in Detached Mode](#run-in-detached-mode)
   - [Working with Different Hardware](#working-with-different-hardware)
+    - [Run on GPU](#run-on-gpu)
+    - [Check GPU Memory](#check-gpu-memory)
+    - [Available Hardware Options](#available-hardware-options)
   - [Real-World Examples](#real-world-examples)
   - [Next Steps](#next-steps)
+  - [Draft Content](#draft-content)
+    - [Inspect Job Details](#inspect-job-details)
 
 ## Installation & Setup
 
@@ -80,6 +88,7 @@ hfjobs run python:3.12 python -c "print('Hello from the cloud!')"
 ```
 
 This command:
+
 - Uses the `python:3.12` Docker image
 - Runs a Python one-liner that prints a message
 - Executes on Hugging Face's infrastructure
@@ -136,7 +145,47 @@ hfjobs logs <job_id>
 
 ## Working with Different Hardware
 
-TODO: Add content
+So far we've been using the default CPU hardware. The real power of hfjobs comes from accessing GPUs and TPUs with a simple flag.
+
+### Run on GPU
+
+Let's verify CUDA is available on a GPU instance:
+
+```bash
+hfjobs run --flavor t4-small pytorch/pytorch:2.6.0-cuda12.4-cudnn9-devel \
+  python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}'); print(f'GPU: {torch.cuda.get_device_name()}')"
+```
+
+Output:
+
+```
+CUDA available: True
+GPU: NVIDIA T4
+```
+
+### Check GPU Memory
+
+Let's see how much memory is available on a T4:
+
+```bash
+hfjobs run --flavor t4-small pytorch/pytorch:2.6.0-cuda12.4-cudnn9-devel \
+  python -c "
+import torch
+print(f'GPU: {torch.cuda.get_device_name()}')
+print(f'Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.0f} GB')
+"
+```
+
+### Available Hardware Options
+
+| Flavor        | Hardware        | GPU Memory | Best For                             |
+| ------------- | --------------- | ---------- | ------------------------------------ |
+| `cpu-basic`   | CPU only        | N/A        | Light processing, debugging          |
+| `cpu-upgrade` | High-memory CPU | N/A        | Data processing, CPU-intensive tasks |
+| `t4-small`    | NVIDIA T4       | 16 GB      | Inference, small models              |
+| `a10g-small`  | NVIDIA A10G     | 24 GB      | Medium training jobs                 |
+| `a10g-large`  | NVIDIA A10G     | 24 GB      | Larger batch sizes                   |
+| `a100-large`  | NVIDIA A100     | 80 GB      | Large model training                 |
 
 ## Real-World Examples
 
@@ -163,6 +212,7 @@ hfjobs inspect <job_id>
 ```
 
 This shows:
+
 - Current status (RUNNING, COMPLETED, FAILED)
 - Hardware configuration (flavor, architecture)
 - Docker image and command
