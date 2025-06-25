@@ -50,6 +50,55 @@ It's also possible to run `hfjobs` without installing it, using [uv run](https:/
 uv run hfjobs --help
 ```
 
+## Quick Start
+
+### 1. Authenticate with the Hugging Face Hub
+
+```bash
+huggingface-cli login
+```
+
+or export your Hugging Face token as an environment variable:
+
+```bash
+export HF_TOKEN="your_token_here"
+```
+
+### 2. Run your first job
+
+```bash
+# Run a simple Python script
+hfjobs run python:3.12 python -c "print('Hello from HF compute!')"
+```
+
+### 3. Check job status
+
+```bash
+# List your running jobs
+hfjobs ps
+
+# View logs from a specific job
+hfjobs logs <job_id>
+```
+
+### 4. Run on GPU
+
+You can also run jobs on GPUs or TPUs with the `--flavor` option. For example, to run a PyTorch job on an A10G GPU:
+
+```bash
+# Use an A10G GPU to check PyTorch CUDA
+hfjobs run --flavor a10g-small pytorch/pytorch:2.6.0-cuda12.4-cudnn9-devel \
+  python -c "import torch; print(f"This code ran with the following GPU: {torch.cuda.get_device_name()}")"
+```
+
+Running this will show the following output!
+
+```bash
+This code ran with the following GPU: NVIDIA A10G
+```
+
+That's it! You're now running code on Hugging Face's infrastructure. For more detailed information, see the sections below.
+
 ## Available commands
 
 ```
