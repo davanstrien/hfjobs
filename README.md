@@ -1,6 +1,29 @@
-# hfjobs
+# 🚀 hfjobs
 
-Hugging Face Jobs
+Run compute jobs on Hugging Face infrastructure with a Docker-like experience!
+
+`hfjobs` is a command-line tool that lets you run anything on Hugging Face's infrastructure (including GPUs and TPUs!) with simple commands. Think `docker run`, but for running code on A100s.
+
+```bash
+# Directly run Python code
+hfjobs run python:3.12 python -c "print('Hello from the cloud!')"
+
+# Use GPUs without any setup
+hfjobs run --flavor a10g-small pytorch/pytorch:2.6.0-cuda12.4-cudnn9-devel \
+  python -c "import torch; print(torch.cuda.get_device_name())"
+
+# Run from Hugging Face Spaces
+hfjobs run hf.co/spaces/lhoestq/duckdb duckdb -c "select 'hello world'"
+```
+
+## ✨ Key Features
+
+- 🐳 **Docker-like CLI**: Familiar commands (`run`, `ps`, `logs`, `inspect`) to run and manage jobs
+- 🔥 **Any Hardware**: From CPUs to A100 GPUs and TPU pods - switch with a simple flag
+- 📦 **Run Anything**: Use Docker images, HF Spaces, or your custom containers
+- 🔐 **Simple Auth**: Just use your HF token
+- 📊 **Live Monitoring**: Stream logs in real-time, just like running locally
+- 💰 **Pay-as-you-go**: Only pay for the seconds you use
 
 ## Installation
 
