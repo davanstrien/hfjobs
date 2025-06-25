@@ -55,7 +55,21 @@ You should see the help output with available commands and options.
 
 ## Authentication
 
-TODO: Add content
+hfjobs needs your Hugging Face token to submit jobs. The easiest way is to use the Hugging Face CLI:
+
+```bash
+huggingface-cli login
+```
+
+Follow the prompts to enter your token. hfjobs will automatically use your saved credentials.
+
+To verify authentication is working:
+
+```bash
+hfjobs ps
+```
+
+This should show your jobs (or an empty list if you haven't run any yet).
 
 ## Your First Job
 
