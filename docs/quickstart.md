@@ -15,6 +15,14 @@ This quickstart will walk you through using `hfjobs` to run compute jobs on Hugg
     - [Understanding the Output](#understanding-the-output)
     - [Watch Logs Stream in Real-Time](#watch-logs-stream-in-real-time)
     - [Run in Detached Mode](#run-in-detached-mode)
+  - [Running Commands and Code](#running-commands-and-code)
+    - [Understanding the Execution Model](#understanding-the-execution-model)
+    - [Execution Approaches](#execution-approaches)
+      - [1. Direct Commands](#1-direct-commands)
+      - [2. Download and Run](#2-download-and-run)
+      - [3. UV Scripts](#3-uv-scripts)
+      - [4. Hugging Face Spaces](#4-hugging-face-spaces)
+    - [Which Approach Should You Use?](#which-approach-should-you-use)
   - [Working with Different Hardware](#working-with-different-hardware)
     - [Run on GPU](#run-on-gpu)
     - [Check GPU Memory](#check-gpu-memory)
@@ -142,6 +150,108 @@ This returns immediately with just the job ID. You can check on it later with:
 ```bash
 hfjobs logs <job_id>
 ```
+
+## Running Commands and Code
+
+In the previous example, we passed Python code directly as a string. But hfjobs can run any command or program available in your container. Let's explore the different approaches.
+
+### Understanding the Execution Model
+
+When you run a job with hfjobs, your commands execute inside a container on Hugging Face's infrastructure. Since your local files aren't directly accessible in the container, you need strategies for running your programs.
+
+### Execution Approaches
+
+#### 1. Direct Commands
+
+Run any command available in the container:
+
+```bash
+# Python code
+hfjobs run python:3.12 python -c "print('Hello')"
+
+# Shell commands
+hfjobs run ubuntu:22.04 echo "Hello from Ubuntu"
+
+# Data tools
+hfjobs run hf.co/spaces/lhoestq/duckdb duckdb -c "SELECT 'Hello SQL'"
+```
+
+**When to use**: Quick tests, simple commands, one-liners
+
+**Limitations**: Complex commands get unwieldy
+
+#### 2. Download and Run
+
+Fetch programs or scripts from URLs and execute them:
+
+```bash
+# Python script
+hfjobs run python:3.12 /bin/bash -c \
+  "wget https://example.com/script.py && python script.py"
+```
+
+**When to use**: Running existing code hosted online
+
+**Limitations**: Dependencies must be handled separately
+
+#### 3. UV Scripts
+
+UV scripts include dependencies inline, making them perfect for hfjobs:
+
+```bash
+# Run our hello_world_uv.py example that uses cowsay
+hfjobs run ghcr.io/astral-sh/uv:latest  /bin/bash -c \"
+   uv run https://raw.githubusercontent.com/davanstrien/hfjobs/main/docs/examples/hello_world_uv.py 'Hello from the cloud!'"
+```
+
+The script includes its dependencies at the top:
+
+```python
+# /// script
+# dependencies = [
+#     "cowsay",
+# ]
+# ///
+```
+
+**When to use**: Scripts with dependencies, reproducible environments
+**Benefits**: Dependencies handled automatically, no complex Docker builds
+
+> See [`examples/hello_world_uv.py`](./examples/hello_world_uv.py) for the full script.
+
+TODO add link to full doc page on using UV with hfjobs
+
+#### 4. Hugging Face Spaces
+
+Use a Space as a container for complex projects with multiple files:
+
+```bash
+# Run a training script from a Space containing multiple modules
+hfjobs run hf.co/spaces/username/my-training-space python train.py \
+  --model bert-base --epochs 10
+
+# The Space can contain:
+# - train.py (main script)
+# - model.py, data.py (supporting modules)
+# - config.yaml (configuration files)
+# - requirements.txt (dependencies)
+```
+
+**When to use**: Complex projects with multiple files, team collaboration
+**Benefits**: Full project structure, version control, easy sharing
+
+> We'll cover creating Spaces for hfjobs in the Real-World Examples section.
+
+### Which Approach Should You Use?
+
+- **Quick test or one-liner?** → Direct commands
+- **Single script with dependencies?** → UV scripts
+- **Complex project with multiple files?** → HF Space
+- **Existing script online?** → Download and run
+
+Each approach has its place. Start simple with direct commands, then move to UV scripts or Spaces as your needs grow.
+
+Next, let's explore running on different hardware options.
 
 ## Working with Different Hardware
 
