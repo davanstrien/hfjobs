@@ -23,6 +23,10 @@ This quickstart will walk you through using `hfjobs` to run compute jobs on Hugg
       - [3. UV Scripts](#3-uv-scripts)
       - [4. Hugging Face Spaces](#4-hugging-face-spaces)
     - [Which Approach Should You Use?](#which-approach-should-you-use)
+  - [Choosing Your Container Image](#choosing-your-container-image)
+    - [Quick Guide](#quick-guide)
+    - [Common Images](#common-images)
+    - [GPU Considerations](#gpu-considerations)
   - [Working with Different Hardware](#working-with-different-hardware)
     - [Run on GPU](#run-on-gpu)
     - [Check GPU Memory](#check-gpu-memory)
@@ -251,7 +255,45 @@ hfjobs run hf.co/spaces/username/my-training-space python train.py \
 
 Each approach has its place. Start simple with direct commands, then move to UV scripts or Spaces as your needs grow.
 
-Next, let's explore running on different hardware options.
+## Choosing Your Container Image
+
+The container image you choose determines what software is available to your code. Images are pre-built environments tailored for different workloads and frameworks.
+
+### Quick Guide
+
+Match your image to your task:
+
+```bash
+# Basic Python work → Python image
+hfjobs run python:3.12 python -c "print('Hello')"
+
+# PyTorch code → PyTorch image
+hfjobs run pytorch/pytorch:latest python -c "import torch; print(torch.__version__)"
+
+# Using UV scripts without GPU → UV image
+hfjobs run ghcr.io/astral-sh/uv:latest uv run script.py
+```
+
+### Common Images
+
+- **python:3.12** - Clean Python environment
+- **ubuntu:22.04** - Commonly used linux image
+- **pytorch/pytorch** - PyTorch pre-installed
+- **tensorflow/tensorflow** - TensorFlow pre-installed
+- **ghcr.io/astral-sh/uv** - An image with uv set up for running UV scripts
+- **transformers:latest** - Hugging Face libraries ready to go
+
+### GPU Considerations
+
+For GPU workloads, use CUDA-enabled images:
+
+```bash
+# CPU version
+hfjobs run pytorch/pytorch:latest python -c "..."
+
+# GPU version (note the cuda tag)
+hfjobs run --flavor t4-small pytorch/pytorch:2.6.0-cuda12.4-cudnn9-devel python -c "..."
+```
 
 ## Working with Different Hardware
 
