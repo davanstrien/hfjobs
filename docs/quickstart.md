@@ -116,14 +116,9 @@ This command:
 You'll see output like:
 
 ```
-Job submitted successfully!
-Job ID: abc123xyz
+Job started with ID: abc123xyz
 View at: https://huggingface.co/jobs/username/abc123xyz
-
-Waiting for job to start...
-===== Job started =====
 Hello from the cloud!
-===== Job completed =====
 ```
 
 ### Understanding the Output
@@ -212,7 +207,7 @@ UV scripts include dependencies inline, making them perfect for hfjobs:
 
 ```bash
 # Run our hello_world_uv.py example that uses cowsay
-hfjobs run ghcr.io/astral-sh/uv:latest  /bin/bash -c \"
+hfjobs run ghcr.io/astral-sh/uv:latest /bin/bash -c "
    uv run https://raw.githubusercontent.com/davanstrien/hfjobs/main/docs/examples/hello_world_uv.py 'Hello from the cloud!'"
 ```
 
@@ -230,8 +225,6 @@ The script includes its dependencies at the top:
 **Benefits**: Dependencies handled automatically, no complex Docker builds
 
 > See [`examples/hello_world_uv.py`](./examples/hello_world_uv.py) for the full script.
-
-TODO add link to full doc page on using UV with hfjobs
 
 #### 4. Hugging Face Spaces
 
@@ -251,8 +244,6 @@ hfjobs run hf.co/spaces/username/my-training-space python train.py \
 
 **When to use**: Complex projects with multiple files, team collaboration
 **Benefits**: Full project structure, version control, easy sharing
-
-> We'll cover creating Spaces for hfjobs in the Real-World Examples section.
 
 ### Which Approach Should You Use?
 
@@ -289,7 +280,7 @@ hfjobs run ghcr.io/astral-sh/uv:latest uv run script.py
 - **pytorch/pytorch** - PyTorch pre-installed
 - **tensorflow/tensorflow** - TensorFlow pre-installed
 - **ghcr.io/astral-sh/uv** - An image with uv set up for running UV scripts
-- **transformers:latest** - Hugging Face libraries ready to go
+- **huggingface/transformers-pytorch-gpu** - Hugging Face libraries ready to go
 
 ### GPU Considerations
 
@@ -305,7 +296,7 @@ hfjobs run --flavor t4-small pytorch/pytorch:2.6.0-cuda12.4-cudnn9-devel python 
 
 ## Working with Different Hardware
 
-So far we've been using the default CPU hardware. The real power of hfjobs comes from accessing GPUs and TPUs with a simple flag.
+So far we've been using the default CPU hardware. The real power of hfjobs comes from accessing GPUs (or TPUs) with a simple flag.
 
 ### Run on GPU
 
